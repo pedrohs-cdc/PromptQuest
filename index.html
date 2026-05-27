@@ -18,7 +18,7 @@
   <!-- Ex: window.API_BASE = 'https://promptquest.onrender.com'; -->
   <!-- ═══════════════════════════════════════════════════════ -->
   <script>
-    window.API_BASE = 'https://promptquest-w37x.onrender.com';
+    window.API_BASE = 'https://promptquest-w37x.onrender.com';b
   </script>
 </head>
 <body>
@@ -26,13 +26,13 @@
   <div class="grain-overlay"></div>
 
   <header class="app-header" id="appHeader">
-    <div class="header-left">
+    <div class="header-left" id="btnLogoHome" style="cursor: pointer;">
       <span class="logo-mark">◆</span>
       <span class="logo-text">PromptQuest</span>
     </div>
     <div class="header-right">
       <div class="score-display" id="scoreDisplay">
-        <span class="score-label">PONTOS</span>
+        <span class="score-label" id="playerNameDisplay">PONTOS</span>
         <span class="score-value" id="scoreValue">0</span>
       </div>
     </div>
@@ -57,6 +57,9 @@
             Dez desafios. Uma única ferramenta: as palavras certas, na ordem certa.
             Escreva prompts que façam a IA cumprir tarefas impossíveis para usuários comuns.
           </p>
+
+          <input type="text" id="playerNameInput" class="name-input" placeholder="Digite seu nome..." autocomplete="off">
+
           <button class="btn btn--primary btn--large" id="btnStartGame">
             <span>Começar a jornada</span>
             <span class="btn-arrow">→</span>
@@ -223,7 +226,7 @@
 
         <div class="final-content">
           <p class="eyebrow">— resultado da sua sessão</p>
-          <h1 class="display-title final-rank" id="finalRank">Aprendiz de Prompt</h1>
+          <h1 class="display-title final-rank"><span id="finalPlayerNameDisplay" style="color: var(--accent-amber);">Jogador</span>, seu rank é:<br><em id="finalRank">Aprendiz de Prompt</em></h1>
           <p class="lead" id="finalMessage">Você está começando a entender como falar com IAs.</p>
 
           <div class="final-stats">

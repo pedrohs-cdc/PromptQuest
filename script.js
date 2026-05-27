@@ -19,6 +19,7 @@ const state = {
   currentChallenge: null,
   currentAttempt: 1,
   sessionScore: 0,
+  playerName: 'Visitante',
   completedIds: new Set(),
   views: ['Home', 'Select', 'Game', 'Result', 'Final'],
 };
@@ -37,6 +38,7 @@ const els = {
     Result: $('viewResult'),
     Final: $('viewFinal'),
   },
+  btnLogoHome: $('btnLogoHome'),
   btnStartGame: $('btnStartGame'),
   btnBackToSelect: $('btnBackToSelect'),
   btnTryAgain: $('btnTryAgain'),
@@ -71,7 +73,10 @@ const els = {
   finalMessage: $('finalMessage'),
   finalScore: $('finalScore'),
   finalWins: $('finalWins'),
+  finalPlayerNameDisplay: $('finalPlayerNameDisplay'),
   toast: $('toast'),
+  playerNameInput: $('playerNameInput'),
+  playerNameDisplay: $('playerNameDisplay'),
 };
 
 // ──────────────────────────────────────────────
@@ -336,6 +341,10 @@ function mostrarPlacarFinal() {
   els.finalScore.textContent = state.sessionScore;
   els.finalWins.textContent = state.completedIds.size;
 
+  if (els.finalPlayerNameDisplay) {
+    els.finalPlayerNameDisplay.textContent = state.playerName;
+  }
+
   const { rank, msg } = calcularRank(state.sessionScore, state.completedIds.size);
   els.finalRank.innerHTML = rank;
   els.finalMessage.textContent = msg;
@@ -373,7 +382,20 @@ function jogarDeNovo() {
 // EVENT LISTENERS
 // ──────────────────────────────────────────────
 function setupListeners() {
+  if (els.btnLogoHome) {
+    els.btnLogoHome.addEventListener('click', () => showView('Home'));
+  }
+
   els.btnStartGame.addEventListener('click', () => {
+    const name = els.playerNameInput.value.trim();
+    if (name) {
+      state.playerName = name;
+    }
+    
+    if (els.playerNameDisplay) {
+      els.playerNameDisplay.textContent = `${state.playerName.toUpperCase()} - PONTOS`;
+    }
+
     showView('Select');
     if (state.challenges.length === 0) carregarDesafios();
   });

@@ -816,6 +816,30 @@ textarea {
   margin-bottom: var(--space-3);
 }
 
+.name-input {
+  width: 100%;
+  max-width: 320px;
+  padding: var(--space-4) var(--space-5);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 2px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  transition: border-color var(--transition-base);
+  margin-bottom: var(--space-6);
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: var(--accent-coral);
+  background: var(--bg-card);
+}
+
+.name-input::placeholder {
+  color: var(--text-muted);
+}
+
 .prompt-input {
   width: 100%;
   min-height: 400px;
