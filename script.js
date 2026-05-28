@@ -1,15 +1,42 @@
 // ═══════════════════════════════════════════════════════════
 // PromptQuest — Frontend (PRODUÇÃO)
-// Diferença vs versão local: API_BASE configurável via window.API_BASE
-// (injetada no index.html como variável global) ou via fallback.
 // ═══════════════════════════════════════════════════════════
 
-// Pega a URL do backend desta forma, em ordem:
-//   1. Variável global window.API_BASE (definida no index.html antes deste script)
-//   2. URL pública do Render (precisa atualizar com a sua)
-//   3. Fallback pra localhost (desenvolvimento)
-const API_BASE = window.API_BASE
-  || 'http://localhost:3000';
+const API_BASE = window.API_BASE || 'http://localhost:3000';
+
+// ──────────────────────────────────────────────
+// PERSISTÊNCIA — localStorage
+// ──────────────────────────────────────────────
+const STORAGE_KEY = 'promptquest_save';
+
+function salvarProgresso() {
+  const save = {
+    playerName: state.playerName,
+    sessionScore: state.sessionScore,
+    completedIds: [...state.completedIds],
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
+}
+
+function carregarProgresso() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const save = JSON.parse(raw);
+    if (save.playerName)   state.playerName   = save.playerName;
+    if (save.sessionScore) state.sessionScore = save.sessionScore;
+    if (Array.isArray(save.completedIds)) {
+      state.completedIds = new Set(save.completedIds);
+    }
+  } catch (e) {
+    console.warn('Erro ao carregar save:', e);
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function limparProgresso() {
+  localStorage.removeItem(STORAGE_KEY);
+}
 
 // ──────────────────────────────────────────────
 // ESTADO GLOBAL DA SESSÃO
@@ -99,6 +126,7 @@ function updateScore(novoValor) {
   els.scoreValue.textContent = novoValor;
   els.scoreValue.classList.add('bump');
   setTimeout(() => els.scoreValue.classList.remove('bump'), 500);
+  salvarProgresso(); // ← persiste sempre que o score muda
 }
 
 function multiplicadorDaTentativa(numero) {
@@ -133,6 +161,61 @@ async function apiCall(path, options = {}) {
 }
 
 // ──────────────────────────────────────────────
+// CARD BÔNUS
+// ──────────────────────────────────────────────
+const BONUS_UNLOCK_THRESHOLD = 9;
+
+function renderizarCardBonus() {
+  const desafiosNormaisCompletos = [...state.completedIds].filter(id => id !== 10).length;
+  const desbloqueado = desafiosNormaisCompletos >= BONUS_UNLOCK_THRESHOLD;
+  const faltam = BONUS_UNLOCK_THRESHOLD - desafiosNormaisCompletos;
+
+  if (desbloqueado) {
+    const d = state.challenges.find(c => c.id === 10);
+    if (d) {
+      const completado = state.completedIds.has(10) ? 'completed' : '';
+      return `
+        <article class="challenge-card challenge-card--bonus ${completado}" data-id="10">
+          <div class="card-top">
+            <span class="card-id">#10</span>
+            <span class="card-dif card-dif--bonus">BÔNUS</span>
+          </div>
+          <h3 class="card-title">${escapeHTML(d.titulo)}</h3>
+          <p class="card-brief">${escapeHTML(d.briefing)}</p>
+          <div class="card-footer">
+            <span class="card-points">${d.pontos_max} pts</span>
+            <span class="card-go">jogar →</span>
+          </div>
+        </article>
+      `;
+    }
+  }
+
+  return `
+    <article class="challenge-card challenge-card--locked" data-id="bonus-locked" aria-disabled="true">
+      <div class="card-top">
+        <span class="card-id">#10</span>
+        <span class="card-dif card-dif--bonus">BÔNUS</span>
+      </div>
+      <h3 class="card-title">??? Desafio Secreto</h3>
+      <p class="card-brief">Complete todos os 9 desafios para desbloquear este desafio especial.</p>
+      <div class="bonus-progress">
+        <div class="bonus-progress-bar">
+          <div class="bonus-progress-fill" style="width: ${(desafiosNormaisCompletos / BONUS_UNLOCK_THRESHOLD) * 100}%"></div>
+        </div>
+        <span class="bonus-progress-label">
+          ${desafiosNormaisCompletos}/9 concluídos${faltam > 0 ? ` — faltam ${faltam}` : ''}
+        </span>
+      </div>
+      <div class="card-footer">
+        <span class="card-points">? pts</span>
+        <span class="lock-icon">🔒</span>
+      </div>
+    </article>
+  `;
+}
+
+// ──────────────────────────────────────────────
 // CARREGAMENTO DE DESAFIOS
 // ──────────────────────────────────────────────
 async function carregarDesafios() {
@@ -152,7 +235,9 @@ async function carregarDesafios() {
 }
 
 function renderizarGridDeDesafios() {
-  const html = state.challenges.map(d => {
+  const desafiosNormais = state.challenges.filter(d => d.id !== 10);
+
+  const htmlNormais = desafiosNormais.map(d => {
     const completado = state.completedIds.has(d.id) ? 'completed' : '';
     const difLabel = {
       facil: 'Fácil',
@@ -177,13 +262,21 @@ function renderizarGridDeDesafios() {
     `;
   }).join('');
 
-  els.challengesGrid.innerHTML = html;
+  els.challengesGrid.innerHTML = htmlNormais + renderizarCardBonus();
 
-  document.querySelectorAll('.challenge-card').forEach(card => {
+  document.querySelectorAll('.challenge-card:not(.challenge-card--locked)').forEach(card => {
     card.addEventListener('click', () => {
       iniciarDesafio(parseInt(card.dataset.id, 10));
     });
   });
+
+  const cardBloqueado = document.querySelector('.challenge-card--locked');
+  if (cardBloqueado) {
+    cardBloqueado.addEventListener('click', () => {
+      const faltam = BONUS_UNLOCK_THRESHOLD - [...state.completedIds].filter(id => id !== 10).length;
+      showToast(`Complete mais ${faltam} desafio${faltam > 1 ? 's' : ''} para desbloquear o bônus.`);
+    });
+  }
 }
 
 function escapeHTML(str) {
@@ -264,7 +357,14 @@ async function submeterPrompt() {
 
     if (data.passou && !state.completedIds.has(state.currentChallenge.id)) {
       state.completedIds.add(state.currentChallenge.id);
-      updateScore(state.sessionScore + data.pontos_ganhos);
+      updateScore(state.sessionScore + data.pontos_ganhos); // ← já salva via updateScore
+
+      const normaisCompletos = [...state.completedIds].filter(id => id !== 10).length;
+      if (normaisCompletos === BONUS_UNLOCK_THRESHOLD) {
+        setTimeout(() => {
+          showToast('🔓 Desafio bônus desbloqueado! Volte ao catálogo para jogar.', 5000);
+        }, 1500);
+      }
     }
 
     if (!data.passou) await liberarDica();
@@ -373,6 +473,7 @@ function jogarDeNovo() {
   state.currentAttempt = 1;
   state.sessionScore = 0;
   state.completedIds.clear();
+  limparProgresso(); // ← apaga o save ao reiniciar
   updateScore(0);
   renderizarGridDeDesafios();
   showView('Select');
@@ -390,8 +491,9 @@ function setupListeners() {
     const name = els.playerNameInput.value.trim();
     if (name) {
       state.playerName = name;
+      salvarProgresso(); // ← persiste o nome ao começar
     }
-    
+
     if (els.playerNameDisplay) {
       els.playerNameDisplay.textContent = `${state.playerName.toUpperCase()} - PONTOS`;
     }
@@ -419,9 +521,23 @@ function setupListeners() {
 // INIT
 // ──────────────────────────────────────────────
 function init() {
+  carregarProgresso(); // ← restaura save antes de tudo
+
   setupListeners();
-  showView('Home');
-  carregarDesafios();
+
+  // Se já tem save, preenche o campo de nome e vai direto pro catálogo
+  if (state.completedIds.size > 0 || state.sessionScore > 0) {
+    if (els.playerNameInput) els.playerNameInput.value = state.playerName;
+    if (els.playerNameDisplay) {
+      els.playerNameDisplay.textContent = `${state.playerName.toUpperCase()} - PONTOS`;
+    }
+    updateScore(state.sessionScore);
+    carregarDesafios().then(() => showView('Select'));
+    showToast(`Bem-vindo de volta, ${state.playerName}! 👋 Progresso restaurado.`, 4000);
+  } else {
+    showView('Home');
+    carregarDesafios();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -82,7 +82,6 @@ body {
   position: relative;
   overflow-x: hidden;
 
-  /* Sutil gradiente radial pra dar profundidade */
   background-image:
     radial-gradient(ellipse at top right, rgba(255, 92, 58, 0.04), transparent 50%),
     radial-gradient(ellipse at bottom left, rgba(255, 248, 158, 0.02), transparent 50%);
@@ -100,7 +99,6 @@ textarea {
   font-family: inherit;
 }
 
-/* Textura de grão sobreposta */
 .grain-overlay {
   position: fixed;
   inset: 0;
@@ -510,6 +508,18 @@ textarea {
   gap: var(--space-4);
 }
 
+/* ── 8. STAGGER: cards entram em cascata ── */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .challenge-card {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
@@ -522,7 +532,25 @@ textarea {
   transition: all var(--transition-base);
   position: relative;
   overflow: hidden;
+
+  /* Animação de entrada */
+  opacity: 0;
+  animation: card-enter 480ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Stagger via nth-child — cobre até 12 cards */
+.challenge-card:nth-child(1)  { animation-delay:  40ms; }
+.challenge-card:nth-child(2)  { animation-delay:  90ms; }
+.challenge-card:nth-child(3)  { animation-delay: 140ms; }
+.challenge-card:nth-child(4)  { animation-delay: 190ms; }
+.challenge-card:nth-child(5)  { animation-delay: 240ms; }
+.challenge-card:nth-child(6)  { animation-delay: 290ms; }
+.challenge-card:nth-child(7)  { animation-delay: 340ms; }
+.challenge-card:nth-child(8)  { animation-delay: 390ms; }
+.challenge-card:nth-child(9)  { animation-delay: 440ms; }
+.challenge-card:nth-child(10) { animation-delay: 490ms; }
+.challenge-card:nth-child(11) { animation-delay: 540ms; }
+.challenge-card:nth-child(12) { animation-delay: 590ms; }
 
 .challenge-card::before {
   content: '';
@@ -557,6 +585,68 @@ textarea {
   color: var(--color-success);
   font-size: 1.25rem;
   font-weight: 700;
+}
+
+/* ── Card bônus bloqueado ── */
+.challenge-card--locked {
+  cursor: not-allowed;
+  border-style: dashed;
+  border-color: var(--border-strong);
+  opacity: 0.6;
+}
+
+.challenge-card--locked:hover {
+  transform: none;
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+}
+
+.challenge-card--locked:hover::before {
+  height: 0;
+}
+
+.bonus-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.bonus-progress-bar {
+  height: 3px;
+  background: var(--border-subtle);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bonus-progress-fill {
+  height: 100%;
+  background: var(--dif-bonus);
+  border-radius: 2px;
+  transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bonus-progress-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Card bônus desbloqueado */
+.challenge-card--bonus {
+  border-color: rgba(200, 157, 216, 0.25);
+}
+
+.challenge-card--bonus::before {
+  background: var(--dif-bonus);
+}
+
+.challenge-card--bonus:hover {
+  border-color: rgba(200, 157, 216, 0.5);
+}
+
+.lock-icon {
+  font-size: 1rem;
 }
 
 .card-top {
@@ -840,6 +930,7 @@ textarea {
   color: var(--text-muted);
 }
 
+/* ── 9. TEXTAREA — responsiva por breakpoint ── */
 .prompt-input {
   width: 100%;
   min-height: 400px;
@@ -935,7 +1026,6 @@ textarea {
   color: var(--text-muted);
 }
 
-/* Resultado content */
 .result-content {
   display: flex;
   flex-direction: column;
@@ -1148,7 +1238,7 @@ textarea {
 }
 
 /* ──────────────────────────────────────────────
-   TOAST DE ERRO
+   TOAST
    ────────────────────────────────────────────── */
 
 .toast {
@@ -1243,5 +1333,11 @@ textarea {
   .result-actions .btn {
     width: 100%;
     justify-content: center;
+  }
+
+  /* ── 9. Textarea menor em mobile ── */
+  .prompt-input {
+    min-height: 200px;
+    font-size: 1rem; /* evita zoom automático no iOS */
   }
 }
