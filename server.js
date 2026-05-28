@@ -33,7 +33,8 @@ const allowedOrigins = [
 
 // Adiciona a URL de produção do Vercel se configurada via env var
 if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
+  const urls = process.env.FRONTEND_URL.split(',').map(u => u.trim()).filter(Boolean);
+  allowedOrigins.push(...urls);
 }
 
 app.use(cors({
