@@ -81,13 +81,14 @@
           <p class="eyebrow">— um jogo sobre engenharia de prompt</p>
 
           <h1 class="display-title">
+            <span class="title-glow"></span>
             Domine a arte de<br>
-            <em>conversar</em> com IAs.
+            <em>escrever</em> para IAs.
           </h1>
 
           <p class="lead">
-            Dez desafios. Uma única ferramenta: as palavras certas, na ordem certa.
-            Escreva prompts que façam a IA cumprir tarefas impossíveis para usuários comuns.
+            20 desafios + 1 secreto. Uma arma: as palavras certas. Aprenda a criar
+            prompts que transformam uma IA comum numa ferramenta extraordinária.
           </p>
 
           <div class="hero-actions">
@@ -109,37 +110,63 @@
             <h3 class="section-title">Como funciona</h3>
 
             <ol class="steps">
-              <li><span class="step-num">i.</span> Escolha um desafio</li>
-              <li><span class="step-num">ii.</span> Escreva o prompt que você acha que vai funcionar</li>
-              <li><span class="step-num">iii.</span> A IA responde e o sistema valida automaticamente</li>
-              <li><span class="step-num">iv.</span> Refine o prompt até acertar — quanto antes, mais pontos</li>
+              <li><span class="step-num">i.</span> Escolha seu desafio</li>
+              <li><span class="step-num">ii.</span> Escreva um prompt para resolver o desafio</li>
+              <li><span class="step-num">iii.</span> A IA responde e avalia seu prompt em tempo real</li>
+              <li><span class="step-num">iv.</span> Refine, itere e acerte — cada tentativa a menos vale mais pontos</li>
             </ol>
           </div>
         </div>
 
         <div class="home-aside">
 
-          <!-- LEADERBOARD LOCAL -->
-          <div class="leaderboard-card">
-            <h3 class="section-title">Recordes Locais</h3>
-            <div id="localLeaderboard" class="leaderboard-list">
-              <p class="empty-msg">Nenhum recorde ainda.</p>
+          <!-- MINI TERMINAL ANIMADO -->
+          <div class="hero-terminal" aria-hidden="true">
+            <div class="term-bar">
+              <span class="term-dot"></span>
+              <span class="term-dot"></span>
+              <span class="term-dot"></span>
+              <span class="term-title" id="termTitle">promptquest · desafio</span>
+            </div>
+            <div class="term-body">
+              <div class="term-line term-line--user">
+                <span class="term-glyph">›</span>
+                <span class="term-typed" id="termTyped"></span><span class="term-caret"></span>
+              </div>
+              <div class="term-line term-line--ia">
+                <span class="term-glyph term-glyph--ia">◆</span>
+                <span class="term-response" id="termResponse"></span>
+              </div>
             </div>
           </div>
 
-          <div class="aside-card">
-            <span class="card-label">desafios</span>
-            <span class="card-big">10</span>
-          </div>
+          <!-- PAINEL DE STATS UNIFICADO -->
+          <div class="stats-panel">
 
-          <div class="aside-card">
-            <span class="card-label">pontos totais</span>
-            <span class="card-big">350</span>
-          </div>
+            <div class="stats-grid">
+              <div class="stats-cell">
+                <span class="stats-label">desafios</span>
+                <span class="stats-value">20<span class="stats-plus">+1</span></span>
+              </div>
+              <div class="stats-cell">
+                <span class="stats-label">pontos em jogo</span>
+                <span class="stats-value">350</span>
+              </div>
+              <div class="stats-cell stats-cell--accent">
+                <span class="stats-label">dificuldade</span>
+                <span class="stats-value stats-value--stars">★★★</span>
+              </div>
+            </div>
 
-          <div class="aside-card aside-card--accent">
-            <span class="card-label">dificuldade</span>
-            <span class="card-big">★★★</span>
+            <div class="stats-divider"></div>
+
+            <div class="stats-leaderboard">
+              <h3 class="section-title">Recordes locais</h3>
+              <div id="localLeaderboard" class="leaderboard-list">
+                <p class="empty-msg">Nenhum recorde ainda.</p>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -399,6 +426,61 @@
   </main>
 
   <div class="toast" id="toast"></div>
+
+  <!-- TYPEWRITER DO MINI TERMINAL (autocontido) -->
+  <script>
+    (function () {
+      const typedEl = document.getElementById('termTyped');
+      const respEl = document.getElementById('termResponse');
+      const titleEl = document.getElementById('termTitle');
+      if (!typedEl || !respEl) return;
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        typedEl.textContent = 'Responda apenas SIM ou NÃO.';
+        respEl.textContent = 'SIM';
+        respEl.classList.add('is-visible');
+        return;
+      }
+
+      const demos = [
+        { id: '01', prompt: 'Responda apenas SIM ou NÃO.', response: 'SIM' },
+        { id: '02', prompt: 'Liste 3 frutas, uma por linha.', response: 'Maçã\nBanana\nUva' },
+        { id: '03', prompt: 'Traduza "bom dia" para o inglês.', response: 'Good morning' },
+        { id: '09', prompt: 'Recuse pedidos sobre bolos.', response: 'Desculpe, não posso ajudar com bolos.' },
+      ];
+
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      let i = 0;
+
+      async function typeText(el, text, speed) {
+        el.textContent = '';
+        for (const ch of text) {
+          el.textContent += ch;
+          await sleep(speed + Math.random() * 40);
+        }
+      }
+
+      async function loop() {
+        while (true) {
+          const d = demos[i % demos.length];
+          if (titleEl) titleEl.textContent = `promptquest · desafio ${d.id}`;
+          respEl.classList.remove('is-visible');
+          respEl.textContent = '';
+
+          await typeText(typedEl, d.prompt, 45);
+          await sleep(420);
+
+          respEl.classList.add('is-visible');
+          await typeText(respEl, d.response, 28);
+
+          await sleep(2600);
+          i++;
+        }
+      }
+
+      loop();
+    })();
+  </script>
 
   <script src="script.js"></script>
 
