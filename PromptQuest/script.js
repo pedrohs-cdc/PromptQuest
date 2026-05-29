@@ -418,7 +418,7 @@ async function apiCall(path, options = {}) {
 // ──────────────────────────────────────────────
 // CARD BÔNUS
 // ──────────────────────────────────────────────
-const BONUS_UNLOCK_THRESHOLD = 20;
+const BONUS_UNLOCK_THRESHOLD = 9;
 
 function renderizarCardBonus() {
   const desafiosNormaisCompletos = [...state.completedIds].filter(id => id !== 10).length;
