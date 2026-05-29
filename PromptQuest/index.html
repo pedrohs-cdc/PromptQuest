@@ -480,6 +480,82 @@
 
       loop();
     })();
+
+    // ── FLUTUAÇÃO DO TERMINAL (confinada à metade direita, quica nas bordas) ──
+    (function () {
+      const term = document.querySelector('.hero-terminal');
+      if (!term) return;
+
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const isDesktop = () => window.innerWidth > 1024;
+
+      // No mobile ou reduced-motion, deixa o terminal parado no fluxo normal
+      if (reduce || !isDesktop()) return;
+
+      term.classList.add('is-floating');
+
+      const MARGIN = 24;
+      const HEADER = 88;
+
+      let x = 0, y = 0;
+      let vx = 0.45, vy = 0.38; // px por frame (lento e suave)
+      let rafId = null;
+
+      function bounds() {
+        const w = term.offsetWidth;
+        const h = term.offsetHeight;
+        return {
+          minX: window.innerWidth * 0.52,           // só metade direita
+          maxX: window.innerWidth - w - MARGIN,
+          minY: HEADER,
+          maxY: window.innerHeight - h - MARGIN,
+        };
+      }
+
+      function place() {
+        const b = bounds();
+        // posição inicial: topo da área direita
+        x = Math.min(Math.max(b.minX + (b.maxX - b.minX) * 0.35, b.minX), b.maxX);
+        y = b.minY + 60;
+        term.style.transform = `translate(${x}px, ${y}px)`;
+      }
+
+      function tick() {
+        const b = bounds();
+
+        x += vx;
+        y += vy;
+
+        if (x <= b.minX) { x = b.minX; vx = Math.abs(vx); }
+        if (x >= b.maxX) { x = b.maxX; vx = -Math.abs(vx); }
+        if (y <= b.minY) { y = b.minY; vy = Math.abs(vy); }
+        if (y >= b.maxY) { y = b.maxY; vy = -Math.abs(vy); }
+
+        term.style.transform = `translate(${x}px, ${y}px)`;
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function start() {
+        if (rafId) cancelAnimationFrame(rafId);
+        place();
+        rafId = requestAnimationFrame(tick);
+      }
+
+      window.addEventListener('resize', () => {
+        if (!isDesktop()) {
+          // volta ao fluxo normal em telas menores
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = null;
+          term.classList.remove('is-floating');
+          term.style.transform = '';
+        } else if (!rafId) {
+          term.classList.add('is-floating');
+          start();
+        }
+      });
+
+      start();
+    })();
   </script>
 
   <script src="script.js"></script>

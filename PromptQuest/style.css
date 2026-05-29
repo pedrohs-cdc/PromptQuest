@@ -67,9 +67,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; scroll-behavior: smooth; }
 body {
-  background:
-    radial-gradient(circle at 50% -20%, rgba(var(--accent-rgb), 0.10), transparent 34rem),
-    var(--bg-deep);
+  background: var(--bg-deep);
   color: var(--text-primary);
   font-family: var(--font-body);
   font-weight: 400;
@@ -94,11 +92,7 @@ textarea { font-family: inherit; }
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at var(--mouse-x, 72%) var(--mouse-y, 28%), rgba(var(--accent-rgb), 0.18), transparent 28rem),
-    radial-gradient(circle at 18% 82%, rgba(var(--success-rgb), 0.12), transparent 32rem),
-    radial-gradient(circle at 82% 78%, rgba(var(--accent-rgb), 0.10), transparent 26rem),
-    linear-gradient(180deg, #05070A 0%, #070B12 48%, #05070A 100%);
+  background: var(--bg-deep);
 }
 
 /* HEADER FIXO */
@@ -177,8 +171,8 @@ textarea { font-family: inherit; }
   min-height: calc(100vh - 200px);
   align-items: start;
 }
-.home-marker { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-2); border-top: 1px solid var(--accent-coral); padding-right: var(--space-8); }
-.home-content { max-width: 640px; }
+.home-marker { grid-column: 1; display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-2); border-top: 1px solid var(--accent-coral); padding-right: var(--space-8); }
+.home-content { grid-column: 2; max-width: 640px; }
 .home-content .display-title { position: relative; }
 .title-glow {
   position: absolute;
@@ -201,15 +195,16 @@ textarea { font-family: inherit; }
   50% { opacity: 1; transform: translateY(-50%) scale(1.06); }
 }
 
-/* Coluna direita: terminal + painel */
+/* Coluna direita: só o painel de stats (o terminal flutua por cima, fora do grid) */
 .home-aside {
+  grid-column: 3;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   align-self: start;
 }
 
-/* ── MINI TERMINAL ANIMADO (#1) ── */
+/* ── MINI TERMINAL ANIMADO (#1) — flutua na metade direita ── */
 .hero-terminal {
   background: linear-gradient(160deg, rgba(16, 23, 38, 0.92), rgba(11, 15, 26, 0.92));
   border: 1px solid var(--border-strong);
@@ -221,12 +216,16 @@ textarea { font-family: inherit; }
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  animation: term-float 6s ease-in-out infinite;
   min-height: 220px;
 }
-@keyframes term-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+/* Quando o JS de flutuação está ativo, o terminal vira elemento fixo atrás do conteúdo */
+.hero-terminal.is-floating {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 380px;
+  z-index: 1;
+  will-change: transform;
 }
 .term-bar {
   display: flex;
