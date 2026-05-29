@@ -457,7 +457,7 @@ function renderizarCardBonus() {
       </div>
       <span class="card-category">Jailbreak Resistance</span>
       <h3 class="card-title">??? Desafio Secreto</h3>
-      <p class="card-brief">Complete todos os outros desafios para desbloquear este desafio especial.</p>
+      <p class="card-brief">Complete os 9 desafios anteriores para desbloquear este desafio especial.</p>
       <div class="bonus-progress">
         <div class="bonus-progress-bar">
           <div class="bonus-progress-fill" style="width: ${(desafiosNormaisCompletos / BONUS_UNLOCK_THRESHOLD) * 100}%"></div>
@@ -810,7 +810,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ──────────────────────────────────────────────
-// EFEITO DE CONSTELAÇÕES (CANVAS) — FUNDO NEON CYBER
+// EFEITO DE CONSTELAÇÕES (CANVAS)
 // ──────────────────────────────────────────────
 function initConstellations() {
   const canvas = document.getElementById('constellationCanvas');
@@ -838,7 +838,6 @@ function initConstellations() {
   const palette = {
     purple: '123, 97, 255',
     cyan: '0, 209, 255',
-    white: '244, 247, 255',
   };
 
   function clamp(value, min, max) {
@@ -931,16 +930,6 @@ function initConstellations() {
     particles = Array.from({ length: count }, (_, index) => new Particle(index));
   }
 
-  function drawBackgroundGlow() {
-    const glow = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, Math.max(width, height) * 0.55);
-    glow.addColorStop(0, 'rgba(123, 97, 255, 0.075)');
-    glow.addColorStop(0.28, 'rgba(0, 209, 255, 0.035)');
-    glow.addColorStop(1, 'rgba(5, 7, 10, 0)');
-
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, width, height);
-  }
-
   function drawConnections() {
     const maxMouseDistance = mouse.radius * 0.95;
 
@@ -996,7 +985,7 @@ function initConstellations() {
     root.style.setProperty('--mouse-x', `${(mouse.x / width) * 100}%`);
     root.style.setProperty('--mouse-y', `${(mouse.y / height) * 100}%`);
 
-    drawBackgroundGlow();
+    // drawBackgroundGlow removido — fundo liso
 
     for (const particle of particles) {
       particle.update();
@@ -1039,9 +1028,6 @@ function initConstellations() {
   restart();
 }
 
-// Iniciar constelações após o carregamento
-// Observação: o fundo usa as cores da identidade visual:
-// roxo elétrico (#7B61FF), ciano brilhante (#00D1FF) e fundo #05070A.
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(initConstellations, 100);
 });
