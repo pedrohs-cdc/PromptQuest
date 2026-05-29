@@ -486,11 +486,11 @@
       const term = document.querySelector('.hero-terminal');
       if (!term) return;
 
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      
       const isDesktop = () => window.innerWidth > 1024;
 
       // No mobile ou reduced-motion, deixa o terminal parado no fluxo normal
-      if (reduce || !isDesktop()) return;
+      if (!isDesktop()) return;
 
       term.classList.add('is-floating');
 

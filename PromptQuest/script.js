@@ -926,7 +926,7 @@ function initConstellations() {
   }
 
   function initParticles() {
-    const count = prefersReducedMotion ? 38 : getParticleCount();
+    const count = getParticleCount();
     particles = Array.from({ length: count }, (_, index) => new Particle(index));
   }
 
@@ -997,7 +997,7 @@ function initConstellations() {
       particle.draw();
     }
 
-    if (!prefersReducedMotion) {
+
       animationFrameId = requestAnimationFrame(animate);
     }
   }
