@@ -997,9 +997,7 @@ function initConstellations() {
       particle.draw();
     }
 
-
-      animationFrameId = requestAnimationFrame(animate);
-    }
+    animationFrameId = requestAnimationFrame(animate);
   }
 
   function handlePointerMove(event) {
