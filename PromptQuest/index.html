@@ -435,13 +435,6 @@
       const titleEl = document.getElementById('termTitle');
       if (!typedEl || !respEl) return;
 
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        typedEl.textContent = 'Responda apenas SIM ou NÃO.';
-        respEl.textContent = 'SIM';
-        respEl.classList.add('is-visible');
-        return;
-      }
-
       const demos = [
         { id: '01', prompt: 'Responda apenas SIM ou NÃO.', response: 'SIM' },
         { id: '02', prompt: 'Liste 3 frutas, uma por linha.', response: 'Maçã\nBanana\nUva' },
