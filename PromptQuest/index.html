@@ -1,48 +1,3 @@
-<<<<<<< HEAD
-// validators.js (versão blindada)
-// Implementa os 5 tipos de validadores definidos no challenges.json:
-// regex, linhas, json, ia_juiz, hibrido
-//
-// Diferença em relação à versão anterior: nenhum caminho aqui lança
-// exceção pra fora. Se a config de um desafio estiver incompleta ou
-// malformada, ou se o juiz IA falhar, retornamos um resultado normal
-// com a mensagem de erro real — em vez de deixar o Express devolver
-// uma página HTML de erro 500 (que o frontend interpreta como
-// "Não foi possível conectar ao servidor").
-
-const { avaliarComJuizIA } = require('./claudeClient');
-
-/**
- * Ponto de entrada principal. Roteia para o validador correto
- * baseado no campo "tipo" do desafio.
- * Envolve tudo num try/catch de segurança: qualquer exceção vira
- * um resultado legível em vez de derrubar a requisição.
- */
-async function validar(resposta, desafio) {
-  try {
-    const config = desafio && desafio.validador;
-
-    if (!config || !config.tipo) {
-      return {
-        passou: false,
-        feedback: 'Este desafio está sem configuração de validador (campo "validador" ausente ou sem "tipo").',
-        detalhes: []
-      };
-    }
-
-    switch (config.tipo) {
-      case 'regex':
-        return validarRegex(resposta, config);
-      case 'linhas':
-        return validarLinhas(resposta, config);
-      case 'json':
-        return validarJSON(resposta, config);
-      case 'ia_juiz':
-        return await validarComJuizIA(resposta, config);
-      case 'hibrido':
-        return await validarHibrido(resposta, config);
-      default:
-=======
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -542,321 +497,61 @@ async function validar(resposta, desafio) {
       function bounds() {
         const w = term.offsetWidth;
         const h = term.offsetHeight;
->>>>>>> 8bab49a284ac3dd29f5f0dbff46f316012fd730c
         return {
-          passou: false,
-          feedback: `Tipo de validador desconhecido: ${config.tipo}`,
-          detalhes: []
+          minX: window.innerWidth * 0.52,           // só metade direita
+          maxX: window.innerWidth - w - MARGIN,
+          minY: HEADER,
+          maxY: window.innerHeight - h - MARGIN,
         };
-    }
-  } catch (erro) {
-    // Rede de segurança final. Se chegou aqui, algum campo da config
-    // do desafio está incompleto/malformado. NÃO deixamos estourar.
-    return {
-      passou: false,
-      feedback: 'Erro interno ao validar este desafio. A configuração do desafio provavelmente está incompleta ou malformada.',
-      detalhes: [`Detalhe técnico: ${erro && erro.message ? erro.message : String(erro)}`]
-    };
-  }
-}
+      }
 
-// ─────────────────────────────────────────────────────────────
-// VALIDADOR 1: REGEX
-// ─────────────────────────────────────────────────────────────
-function validarRegex(resposta, config) {
-  const texto = config.trim ? resposta.trim() : resposta;
-  const flags = config.case_insensitive ? 'i' : '';
+      function place() {
+        const b = bounds();
+        // posição inicial: topo da área direita
+        x = Math.min(Math.max(b.minX + (b.maxX - b.minX) * 0.35, b.minX), b.maxX);
+        y = b.minY + 60;
+        term.style.transform = `translate(${x}px, ${y}px)`;
+      }
 
-  if (typeof config.padrao !== 'string') {
-    return {
-      passou: false,
-      feedback: 'Config de regex deste desafio está sem o campo "padrao".',
-      detalhes: []
-    };
-  }
+      function tick() {
+        const b = bounds();
 
-  // new RegExp lança SyntaxError se o padrão for inválido. Tratamos.
-  let regex;
-  try {
-    regex = new RegExp(config.padrao, flags);
-  } catch (erro) {
-    return {
-      passou: false,
-      feedback: 'O padrão de validação deste desafio é um regex inválido. Avise quem criou o desafio.',
-      detalhes: [`Regex inválido: ${config.padrao} — ${erro.message}`]
-    };
-  }
+        x += vx;
+        y += vy;
 
-  const passou = regex.test(texto);
+        if (x <= b.minX) { x = b.minX; vx = Math.abs(vx); }
+        if (x >= b.maxX) { x = b.maxX; vx = -Math.abs(vx); }
+        if (y <= b.minY) { y = b.minY; vy = Math.abs(vy); }
+        if (y >= b.maxY) { y = b.maxY; vy = -Math.abs(vy); }
 
-  return {
-    passou,
-    feedback: passou
-      ? 'Resposta no formato exato esperado.'
-      : 'A resposta não bateu com o padrão esperado. Reveja o formato pedido no briefing.',
-    detalhes: [`Padrão testado: ${config.padrao}`]
-  };
-}
+        term.style.transform = `translate(${x}px, ${y}px)`;
+        rafId = requestAnimationFrame(tick);
+      }
 
-// ─────────────────────────────────────────────────────────────
-// VALIDADOR 2: LINHAS
-// ─────────────────────────────────────────────────────────────
-function validarLinhas(resposta, config) {
-  const linhas = resposta
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => config.linha_nao_vazia ? l.length > 0 : true);
+      function start() {
+        if (rafId) cancelAnimationFrame(rafId);
+        place();
+        rafId = requestAnimationFrame(tick);
+      }
 
-  const detalhes = [];
-  let passou = true;
+      window.addEventListener('resize', () => {
+        if (!isDesktop()) {
+          // volta ao fluxo normal em telas menores
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = null;
+          term.classList.remove('is-floating');
+          term.style.transform = '';
+        } else if (!rafId) {
+          term.classList.add('is-floating');
+          start();
+        }
+      });
 
-  // Verifica quantidade exata
-  if (config.quantidade_exata !== undefined) {
-    if (linhas.length !== config.quantidade_exata) {
-      passou = false;
-      detalhes.push(`Esperado ${config.quantidade_exata} linhas, recebido ${linhas.length}.`);
-    }
-  }
+      start();
+    })();
+  </script>
 
-  // Verifica ausência de numeração (1., 2), 1-, etc)
-  if (config.proibir_numeracao) {
-    const regexNumeracao = /^\s*\d+[.)\-:]\s/;
-    const temNumeracao = linhas.some(l => regexNumeracao.test(l));
-    if (temNumeracao) {
-      passou = false;
-      detalhes.push('Foi detectada numeração nas linhas (ex: "1.", "2)", "3-").');
-    }
-  }
+  <script src="script.js"></script>
 
-  // Verifica ausência de marcadores (-, *, •)
-  if (config.proibir_marcadores) {
-    const regexMarcador = /^\s*[-*•·]\s/;
-    const temMarcador = linhas.some(l => regexMarcador.test(l));
-    if (temMarcador) {
-      passou = false;
-      detalhes.push('Foram detectados marcadores nas linhas (ex: "-", "*", "•").');
-    }
-  }
-
-  return {
-    passou,
-    feedback: passou
-      ? 'Formato de lista correto.'
-      : 'A formatação da lista não atendeu aos requisitos. Reveja a estrutura pedida.',
-    detalhes
-  };
-}
-
-// ─────────────────────────────────────────────────────────────
-// VALIDADOR 3: JSON
-// ─────────────────────────────────────────────────────────────
-function validarJSON(resposta, config) {
-  const textoLimpo = resposta.trim();
-  const detalhes = [];
-
-  // Se proíbe texto externo, verifica se começa com { e termina com }
-  if (config.proibir_texto_externo) {
-    if (!textoLimpo.startsWith('{') || !textoLimpo.endsWith('}')) {
-      return {
-        passou: false,
-        feedback: 'A resposta deve ser APENAS um JSON, sem texto antes ou depois (e sem ```json).',
-        detalhes: ['Detectado texto fora do JSON.']
-      };
-    }
-  }
-
-  // Tenta fazer parse
-  let obj;
-  try {
-    obj = JSON.parse(textoLimpo);
-  } catch (erro) {
-    return {
-      passou: false,
-      feedback: 'O JSON é inválido e não pôde ser parseado.',
-      detalhes: [`Erro de parse: ${erro.message}`]
-    };
-  }
-
-  // Guarda: campos_obrigatorios pode estar ausente na config do desafio.
-  const camposObrigatorios = Array.isArray(config.campos_obrigatorios)
-    ? config.campos_obrigatorios
-    : [];
-
-  // Verifica campos obrigatórios e tipos
-  let passou = true;
-  for (const campo of camposObrigatorios) {
-    if (!(campo.nome in obj)) {
-      passou = false;
-      detalhes.push(`Campo obrigatório "${campo.nome}" está ausente.`);
-      continue;
-    }
-    const valor = obj[campo.nome];
-    const tipoReal = Array.isArray(valor) ? 'array' : typeof valor;
-    if (tipoReal !== campo.tipo) {
-      passou = false;
-      detalhes.push(`Campo "${campo.nome}" deveria ser ${campo.tipo}, mas é ${tipoReal}.`);
-    }
-  }
-
-  // Verifica campos extras (se proibidos)
-  if (config.permitir_campos_extras === false) {
-    const nomesPermitidos = camposObrigatorios.map(c => c.nome);
-    const camposExtras = Object.keys(obj).filter(k => !nomesPermitidos.includes(k));
-    if (camposExtras.length > 0) {
-      passou = false;
-      detalhes.push(`Campos não permitidos: ${camposExtras.join(', ')}.`);
-    }
-  }
-
-  return {
-    passou,
-    feedback: passou
-      ? 'JSON válido com todos os campos corretos.'
-      : 'O JSON foi parseado mas tem problemas estruturais.',
-    detalhes
-  };
-}
-
-// ─────────────────────────────────────────────────────────────
-// VALIDADOR 4: IA JUIZ
-// ─────────────────────────────────────────────────────────────
-async function validarComJuizIA(resposta, config) {
-  // A chamada ao juiz pode falhar (erro de API, criterios_juiz ausente,
-  // timeout). Tratamos pra não derrubar a requisição.
-  let avaliacao;
-  try {
-    avaliacao = await avaliarComJuizIA(resposta, config.criterios_juiz);
-  } catch (erro) {
-    return {
-      passou: false,
-      feedback: 'Não foi possível avaliar com o juiz IA (erro ao chamar a Claude). Verifique o campo "criterios_juiz" deste desafio e o claudeClient.js.',
-      detalhes: [`Erro do juiz: ${erro && erro.message ? erro.message : String(erro)}`]
-    };
-  }
-
-  // Guarda: o juiz pode não devolver os arrays esperados.
-  const atendidos = Array.isArray(avaliacao && avaliacao.criterios_atendidos)
-    ? avaliacao.criterios_atendidos
-    : [];
-  const falhos = Array.isArray(avaliacao && avaliacao.criterios_falhos)
-    ? avaliacao.criterios_falhos
-    : [];
-
-  const passou = !!(avaliacao && avaliacao.passou);
-
-  return {
-    passou,
-    feedback: (avaliacao && avaliacao.feedback) || (passou
-      ? 'Todos os critérios subjetivos foram atendidos.'
-      : 'Nem todos os critérios foram cumpridos.'),
-    detalhes: [
-      ...atendidos.map(c => `[ok] ${c}`),
-      ...falhos.map(c => `[x] ${c}`)
-    ]
-  };
-}
-
-// ─────────────────────────────────────────────────────────────
-// VALIDADOR 5: HÍBRIDO (código + IA juiz)
-// ─────────────────────────────────────────────────────────────
-async function validarHibrido(resposta, config) {
-  // Roda primeiro a validação por código
-  const validacaoCodigo = validarValidacaoEspecifica(resposta, config.validacao_codigo);
-
-  // Roda também a validação por IA juiz (com tratamento de erro)
-  let validacaoIA;
-  try {
-    validacaoIA = await avaliarComJuizIA(resposta, config.criterios_juiz);
-  } catch (erro) {
-    return {
-      passou: false,
-      feedback: 'Não foi possível avaliar com o juiz IA (erro ao chamar a Claude). Verifique o campo "criterios_juiz" deste desafio e o claudeClient.js.',
-      detalhes: [
-        `[Estrutura] ${validacaoCodigo.passou ? '[ok]' : '[x]'} ${validacaoCodigo.feedback}`,
-        ...validacaoCodigo.detalhes,
-        `Erro do juiz: ${erro && erro.message ? erro.message : String(erro)}`
-      ]
-    };
-  }
-
-  const atendidos = Array.isArray(validacaoIA && validacaoIA.criterios_atendidos)
-    ? validacaoIA.criterios_atendidos
-    : [];
-  const falhos = Array.isArray(validacaoIA && validacaoIA.criterios_falhos)
-    ? validacaoIA.criterios_falhos
-    : [];
-  const iaPassou = !!(validacaoIA && validacaoIA.passou);
-
-  // Ambas precisam passar
-  const passou = validacaoCodigo.passou && iaPassou;
-
-  return {
-    passou,
-    feedback: passou
-      ? 'Tanto a estrutura quanto o conteúdo atenderam aos critérios.'
-      : 'A resposta falhou em pelo menos uma das verificações (estrutural ou de conteúdo).',
-    detalhes: [
-      `[Estrutura] ${validacaoCodigo.passou ? '[ok]' : '[x]'} ${validacaoCodigo.feedback}`,
-      ...validacaoCodigo.detalhes,
-      ...atendidos.map(c => `[Conteudo] [ok] ${c}`),
-      ...falhos.map(c => `[Conteudo] [x] ${c}`)
-    ]
-  };
-}
-
-/**
- * Sub-validador usado pelo híbrido. Atualmente trata "acrostico".
- * Pode ser estendido para outros tipos específicos.
- */
-function validarValidacaoEspecifica(resposta, config) {
-  if (config && config.tipo === 'acrostico') {
-    return validarAcrostico(resposta, config);
-  }
-  return { passou: true, feedback: 'Sem validação adicional.', detalhes: [] };
-}
-
-function validarAcrostico(resposta, config) {
-  if (!config.palavra_alvo) {
-    return {
-      passou: false,
-      feedback: 'Config do acróstico deste desafio está sem o campo "palavra_alvo".',
-      detalhes: []
-    };
-  }
-
-  const paragrafos = resposta
-    .split(/\n\s*\n/)
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
-
-  const detalhes = [];
-  let passou = true;
-
-  if (config.paragrafos_exatos !== undefined && paragrafos.length !== config.paragrafos_exatos) {
-    passou = false;
-    detalhes.push(`Esperado ${config.paragrafos_exatos} parágrafos, recebido ${paragrafos.length}.`);
-  }
-
-  const palavraAlvo = config.case_insensitive
-    ? config.palavra_alvo.toUpperCase()
-    : config.palavra_alvo;
-
-  const palavraFormada = paragrafos
-    .map(p => config.case_insensitive ? (p[0] || '').toUpperCase() : (p[0] || ''))
-    .join('');
-
-  if (palavraFormada !== palavraAlvo) {
-    passou = false;
-    detalhes.push(`Acróstico formado: "${palavraFormada}". Esperado: "${palavraAlvo}".`);
-  } else {
-    detalhes.push(`Acróstico correto: "${palavraFormada}".`);
-  }
-
-  return {
-    passou,
-    feedback: passou ? 'Estrutura do acróstico correta.' : 'Estrutura do acróstico incorreta.',
-    detalhes
-  };
-}
-
-module.exports = { validar };
+</body>
+</html>
