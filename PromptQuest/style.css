@@ -92,7 +92,7 @@ textarea { font-family: inherit; }
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  background: var(--bg-deep);
+  background: transparent;
 }
 
 /* HEADER FIXO */

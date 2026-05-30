@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // validators.js (versão blindada)
 // Implementa os 5 tipos de validadores definidos no challenges.json:
 // regex, linhas, json, ia_juiz, hibrido
@@ -41,6 +42,507 @@ async function validar(resposta, desafio) {
       case 'hibrido':
         return await validarHibrido(resposta, config);
       default:
+=======
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PromptQuest — Domine a arte do prompt</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Um jogo interativo de engenharia de prompt onde você aprende a dominar IAs através de desafios práticos.">
+
+  <!-- Theme -->
+  <meta name="theme-color" content="#05070A">
+
+  <!-- Open Graph / WhatsApp / LinkedIn -->
+  <meta property="og:title" content="PromptQuest — Domine a arte do prompt" />
+  <meta property="og:description" content="Um jogo interativo de engenharia de prompt. Escreva prompts que façam a IA cumprir tarefas impossíveis." />
+  <meta property="og:image" content="https://promptquest.sloward.com/preview.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://promptquest.sloward.com/" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="PromptQuest — Domine a arte do prompt" />
+  <meta name="twitter:description" content="Um jogo interativo de engenharia de prompt. Escreva prompts que façam a IA cumprir tarefas impossíveis." />
+  <meta name="twitter:image" content="https://promptquest.sloward.com/preview.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%2305070A%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M32%2011L53%2032L32%2053L11%2032L32%2011Z%22%20fill%3D%22%237B61FF%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%227%22%20fill%3D%22%2300D1FF%22%2F%3E%0A%3C%2Fsvg%3E">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- CONFIGURAÇÃO DO BACKEND                               -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <script>
+    window.API_BASE = 'https://promptquest-w37x.onrender.com';
+  </script>
+</head>
+
+<body>
+
+  <canvas id="constellationCanvas" class="constellation-bg"></canvas>
+  <div class="grain-overlay"></div>
+
+  <header class="app-header" id="appHeader">
+    <div class="header-left" id="btnLogoHome" style="cursor: pointer;">
+      <span class="logo-mark">◆</span>
+      <span class="logo-text">PromptQuest</span>
+    </div>
+
+    <div class="header-right">
+      <div class="score-display" id="scoreDisplay">
+        <span class="score-label" id="playerNameDisplay">PONTOS</span>
+        <span class="score-value" id="scoreValue">0</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- HOME -->
+    <section class="view view--home active" id="viewHome">
+
+      <div class="home-grid">
+
+        <div class="home-marker">
+          <span class="marker-num">01</span>
+          <span class="marker-label">Início</span>
+        </div>
+
+        <div class="home-content">
+
+          <p class="eyebrow">— um jogo sobre engenharia de prompt</p>
+
+          <h1 class="display-title">
+            <span class="title-glow"></span>
+            Domine a arte de<br>
+            <em>escrever</em> para IAs.
+          </h1>
+
+          <p class="lead">
+            20 desafios + 1 secreto. Uma arma: as palavras certas. Aprenda a criar
+            prompts que transformam uma IA comum numa ferramenta extraordinária.
+          </p>
+
+          <div class="hero-actions">
+            <input
+              type="text"
+              id="playerNameInput"
+              class="name-input"
+              placeholder="Digite seu nome..."
+              autocomplete="off"
+              aria-label="Digite seu nome">
+
+            <button class="btn btn--primary btn--large" id="btnStartGame">
+              <span>Começar a jornada</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
+
+          <div class="how-it-works">
+            <h3 class="section-title">Como funciona</h3>
+
+            <ol class="steps">
+              <li><span class="step-num">i.</span> Escolha seu desafio</li>
+              <li><span class="step-num">ii.</span> Escreva um prompt para resolver o desafio</li>
+              <li><span class="step-num">iii.</span> A IA responde e avalia seu prompt em tempo real</li>
+              <li><span class="step-num">iv.</span> Refine, itere e acerte — cada tentativa a menos vale mais pontos</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="home-aside">
+
+          <!-- MINI TERMINAL ANIMADO -->
+          <div class="hero-terminal" aria-hidden="true">
+            <div class="term-bar">
+              <span class="term-dot"></span>
+              <span class="term-dot"></span>
+              <span class="term-dot"></span>
+              <span class="term-title" id="termTitle">promptquest · desafio</span>
+            </div>
+            <div class="term-body">
+              <div class="term-line term-line--user">
+                <span class="term-glyph">›</span>
+                <span class="term-typed" id="termTyped"></span><span class="term-caret"></span>
+              </div>
+              <div class="term-line term-line--ia">
+                <span class="term-glyph term-glyph--ia">◆</span>
+                <span class="term-response" id="termResponse"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAINEL DE STATS UNIFICADO -->
+          <div class="stats-panel">
+
+            <div class="stats-grid">
+              <div class="stats-cell">
+                <span class="stats-label">desafios</span>
+                <span class="stats-value">20<span class="stats-plus">+1</span></span>
+              </div>
+              <div class="stats-cell">
+                <span class="stats-label">pontos em jogo</span>
+                <span class="stats-value">350</span>
+              </div>
+              <div class="stats-cell stats-cell--accent">
+                <span class="stats-label">dificuldade</span>
+                <span class="stats-value stats-value--stars">★★★</span>
+              </div>
+            </div>
+
+            <div class="stats-divider"></div>
+
+            <div class="stats-leaderboard">
+              <h3 class="section-title">Recordes locais</h3>
+              <div id="localLeaderboard" class="leaderboard-list">
+                <p class="empty-msg">Nenhum recorde ainda.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SELECT -->
+    <section class="view view--select" id="viewSelect">
+
+      <div class="select-header">
+        <div class="select-marker">
+          <span class="marker-num">02</span>
+          <span class="marker-label">Catálogo</span>
+        </div>
+
+        <h2 class="page-title">Escolha seu próximo desafio</h2>
+
+        <div class="filter-bar">
+          <span class="filter-label">Técnica:</span>
+          <div class="filter-options" id="categoryFilters">
+            <button class="filter-btn active" data-category="all">Todos</button>
+            <button class="filter-btn" data-category="Zero-shot">Zero-shot</button>
+            <button class="filter-btn" data-category="Few-shot">Few-shot</button>
+            <button class="filter-btn" data-category="Chain of Thought">CoT</button>
+            <button class="filter-btn" data-category="Constraint">Constraint</button>
+            <button class="filter-btn" data-category="Persona">Persona</button>
+            <button class="filter-btn" data-category="Jailbreak Resistance">Security</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="challenges-grid" id="challengesGrid">
+
+        <div class="loading-state">
+          <div class="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <p>Carregando desafios…</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section class="view view--game" id="viewGame">
+
+      <button class="btn-back" id="btnBackToSelect">
+        ← voltar ao catálogo
+      </button>
+
+      <div class="game-layout">
+
+        <aside class="game-briefing">
+
+          <div class="briefing-meta">
+            <span class="meta-id" id="gameChallengeId">#01</span>
+            <span class="meta-dif" id="gameChallengeDif">FÁCIL</span>
+            <span class="meta-points">
+              vale até <strong id="gameChallengePoints">10</strong> pts
+            </span>
+          </div>
+
+          <h2 class="game-title" id="gameChallengeTitle">
+            Título do Desafio
+          </h2>
+
+          <div class="briefing-section">
+            <h4 class="briefing-label">Sua missão</h4>
+            <p class="briefing-text" id="gameChallengeBriefing"></p>
+          </div>
+
+          <div class="briefing-section">
+            <h4 class="briefing-label">Mensagem que o usuário enviará</h4>
+            <pre class="code-block" id="gameChallengeTest"></pre>
+          </div>
+
+          <div class="briefing-section attempt-info">
+            <span>Tentativa <strong id="gameAttempt">1</strong></span>
+            <span class="attempt-multiplier" id="gameMultiplier">×1.0</span>
+          </div>
+
+          <div class="hint-box" id="hintBox" style="display: none;">
+            <h4 class="briefing-label">💡 Dica</h4>
+            <p class="briefing-text" id="hintText"></p>
+          </div>
+
+        </aside>
+
+        <div class="game-workspace">
+
+          <h4 class="workspace-label">
+            Escreva seu prompt do sistema
+          </h4>
+
+          <p class="workspace-help">
+            Este será o "system prompt" que define como a IA deve se comportar
+            antes de receber a mensagem do usuário.
+          </p>
+
+          <textarea
+            id="userPromptInput"
+            class="prompt-input"
+            placeholder="Ex: Você é um assistente que responde apenas com..."
+            spellcheck="false"
+            autocomplete="off"
+            aria-label="Campo para escrever prompt"></textarea>
+
+          <!-- HINT -->
+          <p class="textarea-hint">
+            Ctrl + Enter para enviar
+          </p>
+
+          <div class="workspace-actions">
+
+            <span class="char-counter">
+              <span id="charCount">0</span> / 4000
+            </span>
+
+            <button class="btn btn--primary" id="btnSubmitPrompt">
+              <span>Enviar pra IA</span>
+              <span class="btn-arrow">→</span>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="view view--result" id="viewResult">
+
+      <div class="result-loading" id="resultLoading">
+
+        <div class="thinking-animation">
+          <div class="thinking-ring"></div>
+          <div class="thinking-ring"></div>
+          <div class="thinking-ring"></div>
+        </div>
+
+        <p class="thinking-text">A IA está pensando…</p>
+
+        <p class="thinking-sub">
+          Executando seu prompt do sistema com a Claude
+        </p>
+      </div>
+
+      <div class="result-content" id="resultContent" style="display: none;">
+
+        <div class="result-banner" id="resultBanner">
+
+          <span class="result-icon" id="resultIcon">✓</span>
+
+          <div>
+            <h2 class="result-title" id="resultTitle">
+              Você passou!
+            </h2>
+
+            <p class="result-subtitle" id="resultSubtitle">
+              +10 pontos conquistados
+            </p>
+          </div>
+
+        </div>
+
+        <div class="result-comparison">
+
+          <div class="comparison-col">
+            <h4 class="comparison-label">SEU PROMPT</h4>
+            <pre class="code-block code-block--scroll" id="resultUserPrompt"></pre>
+          </div>
+
+          <div class="comparison-col">
+            <h4 class="comparison-label">RESPOSTA DA IA</h4>
+            <pre class="code-block code-block--scroll" id="resultIAResponse"></pre>
+          </div>
+
+        </div>
+
+        <div class="result-feedback">
+          <h4 class="feedback-label">Avaliação</h4>
+          <p class="feedback-text" id="resultFeedback"></p>
+          <ul class="feedback-details" id="resultDetails"></ul>
+        </div>
+
+        <div class="result-actions">
+
+          <button class="btn btn--ghost" id="btnTryAgain">
+            Tentar novamente
+          </button>
+
+          <button class="btn btn--primary" id="btnNextChallenge">
+            <span id="btnNextLabel">Próximo desafio</span>
+            <span class="btn-arrow">→</span>
+          </button>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FINAL -->
+    <section class="view view--final" id="viewFinal">
+
+      <div class="final-grid">
+
+        <div class="final-marker">
+          <span class="marker-num">∞</span>
+          <span class="marker-label">Fim de jogo</span>
+        </div>
+
+        <div class="final-content">
+
+          <p class="eyebrow">— resultado da sua sessão</p>
+
+          <h1 class="display-title final-rank">
+            <span id="finalPlayerNameDisplay" style="color: var(--accent-amber);">
+              Jogador
+            </span>,
+            seu rank é:
+            <br>
+            <em id="finalRank">Aprendiz de Prompt</em>
+          </h1>
+
+          <p class="lead" id="finalMessage">
+            Você está começando a entender como falar com IAs.
+          </p>
+
+          <div class="final-stats">
+
+            <div class="stat-card">
+              <span class="stat-label">pontos totais</span>
+              <span class="stat-value" id="finalScore">0</span>
+              <span class="stat-of">de 350 possíveis</span>
+            </div>
+
+            <div class="stat-card">
+              <span class="stat-label">desafios vencidos</span>
+              <span class="stat-value" id="finalWins">0</span>
+              <span class="stat-of">de 21</span>
+            </div>
+
+          </div>
+
+          <button class="btn btn--primary btn--large" id="btnPlayAgain">
+            <span>Jogar de novo</span>
+            <span class="btn-arrow">↻</span>
+          </button>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- TYPEWRITER DO MINI TERMINAL (autocontido) -->
+  <script>
+    (function () {
+      const typedEl = document.getElementById('termTyped');
+      const respEl = document.getElementById('termResponse');
+      const titleEl = document.getElementById('termTitle');
+      if (!typedEl || !respEl) return;
+
+      const demos = [
+        { id: '01', prompt: 'Responda apenas SIM ou NÃO.', response: 'SIM' },
+        { id: '02', prompt: 'Liste 3 frutas, uma por linha.', response: 'Maçã\nBanana\nUva' },
+        { id: '03', prompt: 'Traduza "bom dia" para o inglês.', response: 'Good morning' },
+        { id: '09', prompt: 'Recuse pedidos sobre bolos.', response: 'Desculpe, não posso ajudar com bolos.' },
+      ];
+
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      let i = 0;
+
+      async function typeText(el, text, speed) {
+        el.textContent = '';
+        for (const ch of text) {
+          el.textContent += ch;
+          await sleep(speed + Math.random() * 40);
+        }
+      }
+
+      async function loop() {
+        while (true) {
+          const d = demos[i % demos.length];
+          if (titleEl) titleEl.textContent = `promptquest · desafio ${d.id}`;
+          respEl.classList.remove('is-visible');
+          respEl.textContent = '';
+
+          await typeText(typedEl, d.prompt, 45);
+          await sleep(420);
+
+          respEl.classList.add('is-visible');
+          await typeText(respEl, d.response, 28);
+
+          await sleep(2600);
+          i++;
+        }
+      }
+
+      loop();
+    })();
+
+    // ── FLUTUAÇÃO DO TERMINAL (confinada à metade direita, quica nas bordas) ──
+    (function () {
+      const term = document.querySelector('.hero-terminal');
+      if (!term) return;
+
+      
+      const isDesktop = () => window.innerWidth > 1024;
+
+      // No mobile ou reduced-motion, deixa o terminal parado no fluxo normal
+      if (!isDesktop()) return;
+
+      term.classList.add('is-floating');
+
+      const MARGIN = 24;
+      const HEADER = 88;
+
+      let x = 0, y = 0;
+      let vx = 0.45, vy = 0.38; // px por frame (lento e suave)
+      let rafId = null;
+
+      function bounds() {
+        const w = term.offsetWidth;
+        const h = term.offsetHeight;
+>>>>>>> 8bab49a284ac3dd29f5f0dbff46f316012fd730c
         return {
           passou: false,
           feedback: `Tipo de validador desconhecido: ${config.tipo}`,
